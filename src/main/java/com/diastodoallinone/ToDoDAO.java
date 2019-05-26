@@ -1,20 +1,24 @@
 package com.diastodoallinone;
 
+import com.diastodoallinone.model.ToDoItem;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dia on 11/04/2019.
  */
 public class ToDoDAO {
 
-    private static final String  DATABASEROUTE = "jdbc:sqlite:/Users/dia/todo.db";
+    private static final String DATABASEROUTE = "jdbc:sqlite:/Users/dia/todo.db";
     Connection connection = DriverManager.getConnection(DATABASEROUTE);
 
     public ToDoDAO() throws SQLException {
     }
 
 
-    public void createDbColumns(){
+    public void createDbColumns() {
 
 
         try {
@@ -31,7 +35,7 @@ public class ToDoDAO {
         }
     }
 
-    public void createToDoListItem(String toDoShortDescription, String todoLongDescription, String todoDueDate, String todoOrder, String  hasBeenDone) {
+    public void createToDoListItem(String toDoShortDescription, String todoLongDescription, String todoDueDate, String todoOrder, String hasBeenDone) {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -39,7 +43,7 @@ public class ToDoDAO {
             e.printStackTrace();
         }
         try {
-            statement.execute(String.format("INSERT INTO toDoList (todoShortDescription, todoLongDescription, todoDueDate, todoOrder, hasBeenDone) VALUES ('%s', '%s', '%s',  %s, '%s')", toDoShortDescription, todoLongDescription,todoDueDate,todoOrder, hasBeenDone));
+            statement.execute(String.format("INSERT INTO toDoList (todoShortDescription, todoLongDescription, todoDueDate, todoOrder, hasBeenDone) VALUES ('%s', '%s', '%s',  %s, '%s')", toDoShortDescription, todoLongDescription, todoDueDate, todoOrder, hasBeenDone));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -47,26 +51,29 @@ public class ToDoDAO {
 
     }
 
-    public void getToDOItems() throws SQLException {
+    public List<ToDoItem> getToDOItems() throws SQLException {
+        List<ToDoItem> list = new ArrayList<>();
         Statement statement = null;
         try {
             statement = connection.createStatement();
             ResultSet rs = statement.executeQuery("SELECT * FROM toDoList");
 
-            while(rs.next()){
+            while (rs.next()) {
                 String todoShortDescription = rs.getString("todoShortDescription");
                 String todoLongDescription = rs.getString("todoLongDescription");
                 String todoDueDate = rs.getString("todoDueDate");
-                int todoOrder = rs.getInt("todoOrder");
-                boolean hasBeenDone = rs.getBoolean("hasBeenDone");
-                System.out.println("todoShortDescription is: " + todoShortDescription + " todoLongDescription is: " + todoLongDescription + " todoDueDate is: " + todoDueDate + " todoOrder is: " + todoOrder + " hasBeenDone is: " + hasBeenDone);
+                String todoOrder = rs.getString("todoOrder");
+                String hasBeenDone = rs.getString("hasBeenDone");
+                ToDoItem toDoItem = new ToDoItem(todoShortDescription, todoLongDescription, todoDueDate, todoOrder, hasBeenDone);
+                list.add(toDoItem);
+//                System.out.println("todoShortDescription is: " + todoShortDescription + " todoLongDescription is: " + todoLongDescription + " todoDueDate is: " + todoDueDate + " todoOrder is: " + todoOrder + " hasBeenDone is: " + hasBeenDone);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         statement.close();
-
+        return list;
     }
 
 
